@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'user_info_input_page2.dart';
+import '../models/user_data.dart';
 
 class UserInfoInputPage extends StatelessWidget {
   const UserInfoInputPage({super.key});
@@ -151,7 +152,9 @@ class UserInfoInputPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const UserInfoInputPage2()),
+                    builder: (context) =>
+                        UserInfoInputPage2(userData: UserData()),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(

@@ -104,7 +104,7 @@ class UserInfoInputPage4 extends StatelessWidget {
             child: Center(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/home');
+                  Navigator.pushNamed(context, '/user_info_input_page5');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1A237E),

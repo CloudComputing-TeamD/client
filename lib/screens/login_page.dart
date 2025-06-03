@@ -1,8 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/services/auth_service.dart';
 import 'user_info_input_page1.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'home_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
+
+  void _handleGoogleLogin(BuildContext context) async {
+    final authService = AuthService();
+    final idToken = await authService.signInWithGoogle();
+
+    if (idToken == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('구글 로그인 실패')),
+      );
+      return;
+    }
+
+    final result = await authService.authenticateWithServer(idToken);
+    final location = result?['location'];
+    final userId = result?['user_id'];
+
+    if (userId != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_id', userId);
+    }
+
+    if (location == '/home') {
+      Navigator.pushNamed(context, '/home');
+    } else if (location == '/users/signup') {
+      Navigator.pushNamed(context, '/user_info_input_page1');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('알 수 없는 응답')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,25 +51,6 @@ class LoginPage extends StatelessWidget {
             child: SizedBox(
               width: 60,
               height: 24, // 기존 텍스트 높이 기준
-            ),
-          ),
-          // 포스팅 만들기 상단 바
-          Positioned(
-            top: 44,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 80,
-              alignment: Alignment.center,
-              child: Text(
-                '포스팅 만들기',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Pretendard',
-                  color: Colors.black,
-                ),
-              ),
             ),
           ),
           // 로그인 타이틀
@@ -158,9 +173,7 @@ class LoginPage extends StatelessWidget {
               children: [
                 // Google
                 IconButton(
-                  onPressed: () {
-                    // 구글 회원가입 로직
-                  },
+                  onPressed: () => _handleGoogleLogin(context),
                   icon: Image.asset('assets/login/google.png',
                       width: 36.8, height: 35),
                   tooltip: 'Google로 가입',

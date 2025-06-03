@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_page.dart';
 import 'screens/my_page.dart';
 import 'screens/schedule_page.dart';
 import 'screens/login_page.dart';
 import 'screens/chatbot_page.dart';
 import 'screens/routine_page.dart';
+import 'screens/user_info_input_page1.dart';
+import 'screens/user_info_input_page5.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,6 +15,16 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
+  Future<String?> getInitialRoute() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+    if (userId != null && userId.isNotEmpty) {
+      return '/home';
+    } else {
+      return '/login';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +61,16 @@ class MyApp extends StatelessWidget {
           case '/chatbot':
             return MaterialPageRoute(
               builder: (_) => const ChatbotPage(),
+              settings: settings,
+            );
+          case '/user_info_input_page1':
+            return MaterialPageRoute(
+              builder: (_) => const UserInfoInputPage(),
+              settings: settings,
+            );
+          case '/user_info_input_page5':
+            return MaterialPageRoute(
+              builder: (_) => const UserInfoInputPage5(),
               settings: settings,
             );
           case '/routine':

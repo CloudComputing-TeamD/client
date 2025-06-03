@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'user_info_input_page4.dart';
-import '../models/user_data.dart';
+import 'home_page.dart'; // 이후 서버로 데이터 전송 후 홈으로 이동한다고 가정
 
-class UserInfoInputPage3 extends StatelessWidget {
-  final UserData userData;
-
-  const UserInfoInputPage3({super.key, required this.userData});
+class UserInfoInputPage5 extends StatelessWidget {
+  const UserInfoInputPage5({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,14 +10,13 @@ class UserInfoInputPage3 extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 상단 시간 여백
           const Positioned(
             left: 40,
             top: 20,
             child: SizedBox(width: 60, height: 24),
           ),
 
-          // 네비게이션 바
+          // 상단 네비게이션 바
           Positioned(
             top: 44,
             left: 0,
@@ -43,36 +39,33 @@ class UserInfoInputPage3 extends StatelessWidget {
                   const SizedBox(width: 12),
                   Image.asset('assets/info/logo.png', width: 60),
                   const Spacer(),
-                  Image.asset('assets/info/chatbot.png', width: 28, height: 28),
+                  Image.asset('assets/info/chatbot.png', width: 28),
                   const SizedBox(width: 10),
-                  Image.asset('assets/info/schedule.png',
-                      width: 28, height: 28),
+                  Image.asset('assets/info/schedule.png', width: 28),
                   const SizedBox(width: 10),
-                  Image.asset('assets/info/profile.png', width: 28, height: 28),
+                  Image.asset('assets/info/profile.png', width: 28),
                 ],
               ),
             ),
           ),
 
-          // 상단 파란 진행 바
+          // 진행 바
           Positioned(
             top: 124,
             left: 0,
             right: 0,
-            child: Container(
-              height: 8,
-              child: Row(
-                children: [
-                  Container(
-                    width: 180,
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(width: 3, color: Color(0xFF1A237E)),
-                      ),
+            child: Row(
+              children: [
+                Container(
+                  width: 300,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(width: 3, color: Color(0xFF1A237E)),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
 
@@ -80,38 +73,25 @@ class UserInfoInputPage3 extends StatelessWidget {
           const Positioned(
             left: 36,
             top: 170,
-            child: SizedBox(
-              width: 338,
-              height: 41,
-              child: Text(
-                'Q. 어떤 목표로 운동을 시작하시나요?',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                ),
+            child: Text(
+              'Q. 일주일에 몇 번 운동하시나요?',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w400,
               ),
             ),
           ),
 
-          // 선택지 항목들
-          ..._buildOption(
-              top: 274, title: '체중 감량', desc: '지방을 줄이고 몸을 가볍게 만들고 싶어요.'),
-          ..._buildOption(
-              top: 365, title: '근력 향상', desc: '근육량을 늘리고 강한 체력을 기르고 싶어요.'),
-          ..._buildOption(
-              top: 453,
-              title: '체형 개선 / 라인 정리',
-              desc: '몸의 균형을 잡고 보기 좋게 다듬고 싶어요.'),
-          ..._buildOption(
-              top: 542, title: '운동 습관 형성', desc: '규칙적으로 운동하는 습관을 만들고 싶어요.'),
-          ..._buildOption(
-              top: 627,
-              title: '체력 회복/건강 증진',
-              desc: '쉽게 피로해지거나 움직이기 힘든 몸을 회복하고 싶어요.'),
+          // 선택지 항목
+          ..._buildOption(274, '1회', '가볍게 시작해보고 싶어요.'),
+          ..._buildOption(365, '2~3회', '적당히 꾸준하게 운동하고 싶어요.'),
+          ..._buildOption(453, '4~5회', '체계적인 루틴을 실천하고 있어요.'),
+          ..._buildOption(542, '매일', '운동은 일상입니다.'),
+          ..._buildOption(627, '정해진 횟수 없음', '상황에 맞게 자유롭게 운동해요.'),
 
-          // 다음 버튼 (중앙 정렬)
+          // 다음 버튼
           Positioned(
             bottom: 40,
             left: 0,
@@ -119,12 +99,8 @@ class UserInfoInputPage3 extends StatelessWidget {
             child: Center(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const UserInfoInputPage4(),
-                    ),
-                  );
+                  // 이 시점에서 user_id, JWT, form 데이터 모아서 API 전송할 수 있음
+                  Navigator.pushNamed(context, '/home');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1A237E),
@@ -139,7 +115,7 @@ class UserInfoInputPage3 extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
-                    fontFamily: 'Inter',
+                    fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -151,8 +127,7 @@ class UserInfoInputPage3 extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildOption(
-      {required double top, required String title, required String desc}) {
+  List<Widget> _buildOption(double top, String title, String desc) {
     return [
       Positioned(
         left: 11,
@@ -189,9 +164,9 @@ class UserInfoInputPage3 extends StatelessWidget {
           width: 296,
           child: Text(
             desc,
-            maxLines: 1,
             softWrap: true,
             overflow: TextOverflow.visible,
+            maxLines: null,
             style: const TextStyle(
               color: Colors.black,
               fontSize: 13,

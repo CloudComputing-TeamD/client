@@ -1,8 +1,25 @@
 import 'package:flutter/material.dart';
 import 'user_info_input_page3.dart';
+import '../models/user_data.dart';
 
-class UserInfoInputPage2 extends StatelessWidget {
-  const UserInfoInputPage2({super.key});
+class UserInfoInputPage2 extends StatefulWidget {
+  final UserData userData;
+
+  const UserInfoInputPage2({super.key, required this.userData});
+
+  @override
+  State<UserInfoInputPage2> createState() => _UserInfoInputPage2State();
+}
+
+class _UserInfoInputPage2State extends State<UserInfoInputPage2> {
+  String _selectedLevel = '';
+
+  void _onSelect(String level) {
+    setState(() {
+      _selectedLevel = level;
+      widget.userData.workoutLevel = level;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,26 +110,30 @@ class UserInfoInputPage2 extends StatelessWidget {
             ),
           ),
 
-          // 운동 선택 카드 4개
+          // 선택 카드들
           ..._buildOptionBlock(
             top: 282,
             title: '운동을 거의 하지 않음',
             subtitle: '일상생활 외에 별도의 운동을 해본 경험이 없습니다.',
+            level: 'BEGINNER',
           ),
           ..._buildOptionBlock(
             top: 384,
             title: '가볍게 활동 중',
             subtitle: '가끔 걷기나 스트레칭 정도의 가벼운 활동을 합니다.',
+            level: 'LIGHT',
           ),
           ..._buildOptionBlock(
             top: 486,
             title: '규칙적인 운동 중',
             subtitle: '주 2~3회, 일정한 루틴으로 운동을 진행하고 있습니다.',
+            level: 'MODERATE',
           ),
           ..._buildOptionBlock(
             top: 588,
             title: '고강도/체계적 운동 중',
             subtitle: '주 4회 이상 체계적인 운동을 실천하고 있습니다.',
+            level: 'ADVANCED',
           ),
           // 다음 버튼
           Positioned(
@@ -125,7 +146,8 @@ class UserInfoInputPage2 extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const UserInfoInputPage3(),
+                      builder: (context) =>
+                          UserInfoInputPage3(userData: widget.userData),
                     ),
                   );
                 },
@@ -158,17 +180,30 @@ class UserInfoInputPage2 extends StatelessWidget {
     required double top,
     required String title,
     required String subtitle,
+    required String level,
   }) {
+    final isSelected = _selectedLevel == level;
     return [
       Positioned(
         left: 12,
         top: top,
-        child: Container(
-          width: 369,
-          height: 86,
-          decoration: BoxDecoration(
-            color: const Color(0x191A237E),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _onSelect(level),
             borderRadius: BorderRadius.circular(40),
+            splashColor: Colors.blue.withOpacity(0.2),
+            highlightColor: Colors.blue.withOpacity(0.1),
+            child: Container(
+              width: 369,
+              height: 86,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? const Color(0xFF1A237E)
+                    : const Color(0x191A237E),
+                borderRadius: BorderRadius.circular(40),
+              ),
+            ),
           ),
         ),
       ),
@@ -179,8 +214,8 @@ class UserInfoInputPage2 extends StatelessWidget {
           width: 325,
           child: Text(
             title,
-            style: const TextStyle(
-              color: Colors.black,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.black,
               fontSize: 20,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w400,
@@ -195,8 +230,8 @@ class UserInfoInputPage2 extends StatelessWidget {
           width: 296,
           child: Text(
             subtitle,
-            style: const TextStyle(
-              color: Colors.black,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.black,
               fontSize: 13,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w400,
