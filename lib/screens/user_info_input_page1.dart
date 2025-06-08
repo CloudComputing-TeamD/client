@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'user_info_input_page2.dart';
+import 'user_info_input_page1_5.dart';
 import '../models/user_data.dart';
 
 class UserInfoInputPage extends StatelessWidget {
-  const UserInfoInputPage({super.key});
+  final UserData userData;
+
+  const UserInfoInputPage({super.key, required this.userData});
 
   @override
   Widget build(BuildContext context) {
+    final userData = ModalRoute.of(context)!.settings.arguments as UserData;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -149,12 +154,10 @@ class UserInfoInputPage extends StatelessWidget {
             right: 28,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushNamed(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        UserInfoInputPage2(userData: UserData()),
-                  ),
+                  '/user_info_input_page1_5',
+                  arguments: userData,
                 );
               },
               style: ElevatedButton.styleFrom(

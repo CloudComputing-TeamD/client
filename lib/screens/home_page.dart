@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import '../models/user_data.dart';
 import 'package:frontend/widgets/top_nav_bar.dart';
 import 'routine_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final UserData userData;
+  final Map<String, dynamic>? newRoutine;
+
+  const HomePage({
+    super.key,
+    required this.userData,
+    this.newRoutine,
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -12,62 +20,181 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String _selectedFilter = '최근';
   int? _editingRoutineId;
+  bool _isDeletingTags = false;
 
-  List<Map<String, dynamic>> routines = [
-    {
-      "id": 1,
-      "title": "루틴 1",
-      "tags": ["어깨", "삼두"],
-      "isPinned": false,
-    },
-    {
-      "id": 2,
-      "title": "루틴 2",
-      "tags": ["가슴", "이두"],
-      "isPinned": false,
-    },
-    {
-      "id": 3,
-      "title": "루틴 3",
-      "tags": ["하체"],
-      "isPinned": true,
-    },
-  ];
+  late List<Map<String, dynamic>> routines;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final user = widget.userData;
+
+    routines = [
+      {
+        "id": 1,
+        "title": "체중 감량 루틴",
+        "tags": ["유산소", "중급", "기초"],
+        "isPinned": true,
+      },
+      {
+        "id": 2,
+        "title": "전신 유산소 루틴",
+        "tags": ["전신", "유산소", "중급"],
+        "isPinned": false,
+      },
+      {
+        "id": 3,
+        "title": "고강도 인터벌 트레이닝",
+        "tags": ["HIIT", "중급", "유산소"],
+        "isPinned": false,
+      },
+      {
+        "id": 4,
+        "title": "홈트 루틴",
+        "tags": ["유산소", "기초", "집에서"],
+        "isPinned": false,
+      },
+    ];
+
+    if (widget.newRoutine != null) {
+      routines.add(widget.newRoutine!);
+    }
+  }
+
+  String _generateRoutineTitle(UserData user) {
+    final goal = user.goal ?? '';
+    if (goal.contains('체중')) return '체중 감량 루틴';
+    if (goal.contains('근육')) return '근성장 루틴';
+    if (goal.contains('건강')) return '건강 관리 루틴';
+    return '맞춤형 루틴';
+  }
+
+  List<String> _generateTags(UserData user) {
+    final level = user.workoutLevel?.toLowerCase() ?? '';
+    final parts = user.targetParts ?? [];
+
+    final tags = <String>[];
+
+    if (level.contains('beginner')) tags.add('기초');
+    if (level.contains('intermediate')) tags.add('중급');
+    if (level.contains('advanced')) tags.add('고급');
+
+    // 최대 2개까지 주요 부위 추가
+    tags.insertAll(0, parts.take(2).toList());
+
+    return tags;
+  }
 
   void _showAddTagDialog(int routineId) {
-    TextEditingController controller = TextEditingController();
+    List<String> tagOptions = [
+      "고급",
+      "중급",
+      "초급",
+      "유산소",
+      "전신",
+      "복부",
+      "복근",
+      "코어",
+      "하체",
+      "허벅지",
+      "엉덩이",
+      "종아리",
+      "상체",
+      "가슴",
+      "등",
+      "어깨"
+    ];
+
+    String? selectedTag;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("태그 추가"),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: "예: 복근"),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("취소"),
+      builder: (context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          backgroundColor: Colors.white,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            constraints: const BoxConstraints(maxHeight: 400),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "태그 선택",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Pretendard',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: tagOptions.length,
+                    itemBuilder: (context, index) {
+                      final tag = tagOptions[index];
+                      return ListTile(
+                        title: Text(
+                          tag,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        trailing: selectedTag == tag
+                            ? const Icon(Icons.check_circle,
+                                color: Color(0xFF1A237E))
+                            : const Icon(Icons.circle_outlined,
+                                color: Colors.grey),
+                        onTap: () {
+                          setState(() => selectedTag = tag);
+                          Navigator.of(context).pop(); // 선택 즉시 닫기
+                          if (selectedTag != null) {
+                            final index = routines
+                                .indexWhere((r) => r['id'] == routineId);
+                            if (index != -1 &&
+                                !routines[index]['tags']
+                                    .contains(selectedTag)) {
+                              setState(() {
+                                routines[index]['tags'].add(selectedTag);
+                              });
+                            }
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("닫기"),
+                ),
+              ],
+            ),
           ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                final index = routines.indexWhere((r) => r['id'] == routineId);
-                if (index != -1 && controller.text.trim().isNotEmpty) {
-                  routines[index]['tags'].add(controller.text.trim());
-                }
-              });
-              Navigator.pop(context);
-            },
-            child: const Text("추가"),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    print("✅ HomePage 도착");
+    print("📌 이메일: ${widget.userData.email}");
+    print("📌 토큰: ${widget.userData.token}");
+    print("📌 목표: ${widget.userData.goal}");
+    print("📌 운동 레벨: ${widget.userData.workoutLevel}");
+    print("📌 타겟 부위: ${widget.userData.targetParts}");
+    print("📌 주당 횟수: ${widget.userData.frequency}");
+    print("📌 성별: ${widget.userData.gender}");
+    print("📌 키: ${widget.userData.height}");
+    print("📌 몸무게: ${widget.userData.weight}");
+    print("📌 생년월일: ${widget.userData.birthDate}");
+
     final sortedRoutines = [...routines]
       ..sort((a, b) => (b['isPinned'] ? 1 : 0) - (a['isPinned'] ? 1 : 0));
 
@@ -80,11 +207,14 @@ class _HomePageState extends State<HomePage> {
           children: [
             const Positioned(
                 left: 40, top: 20, child: SizedBox(width: 60, height: 24)),
-            const Positioned(
+            Positioned(
               top: 44,
               left: 0,
               right: 0,
-              child: TopNavBar(assetPrefix: 'assets/home'),
+              child: TopNavBar(
+                assetPrefix: 'assets/home',
+                userData: widget.userData,
+              ),
             ),
             Positioned(
               top: 124,
@@ -116,7 +246,7 @@ class _HomePageState extends State<HomePage> {
                                   : 1;
                               routines.add({
                                 "id": newId,
-                                "title": "루틴 $newId",
+                                "title": "새 루틴$newId",
                                 "tags": ["새 태그"],
                                 "isPinned": false,
                               });
@@ -206,11 +336,23 @@ class _HomePageState extends State<HomePage> {
                                                 color: Color(0xFF2B291D))),
                                         if (routine['isPinned'])
                                           Container(
-                                              margin:
-                                                  const EdgeInsets.only(top: 4),
-                                              height: 2,
-                                              width: 40,
-                                              color: Color(0xFF1A237E)),
+                                            margin:
+                                                const EdgeInsets.only(top: 4),
+                                            height: 2,
+                                            color: const Color(0xFF1A237E),
+                                            // 텍스트 길이에 맞게 자동 너비 설정
+                                            child: LayoutBuilder(
+                                              builder: (context, constraints) {
+                                                final titleLength =
+                                                    routine['title']
+                                                        .toString()
+                                                        .length;
+                                                return SizedBox(
+                                                    width: titleLength *
+                                                        16.0); // 글자당 12px 정도 할당
+                                              },
+                                            ),
+                                          ),
                                         const SizedBox(height: 8),
                                         Wrap(
                                           spacing: 8,
@@ -240,7 +382,8 @@ class _HomePageState extends State<HomePage> {
                                                             color: Colors.white,
                                                             fontFamily:
                                                                 'Pretendard')),
-                                                    if (isEditing)
+                                                    if (isEditing &&
+                                                        _isDeletingTags)
                                                       GestureDetector(
                                                         onTap: () {
                                                           setState(() =>
@@ -262,7 +405,7 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                               );
                                             }).toList(),
-                                            if (isEditing)
+                                            if (isEditing && !_isDeletingTags)
                                               GestureDetector(
                                                 onTap: () => _showAddTagDialog(
                                                     routine['id']),
@@ -290,7 +433,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           Positioned(
-                            top: 40, // 중간 높이로 조정
+                            top: 40,
                             right: 12,
                             child: GestureDetector(
                               onTapDown: (details) async {
@@ -323,11 +466,19 @@ class _HomePageState extends State<HomePage> {
                                     }
                                   });
                                 } else if (result == 'edit') {
-                                  setState(
-                                      () => _editingRoutineId = routine['id']);
+                                  setState(() {
+                                    _editingRoutineId = routine['id'];
+                                    _isDeletingTags = false; // 수정 모드
+                                  });
                                 } else if (result == 'delete') {
-                                  setState(() => routines.removeWhere(
-                                      (r) => r['id'] == routine['id']));
+                                  setState(() {
+                                    routines.removeWhere(
+                                        (r) => r['id'] == routine['id']);
+                                    if (_editingRoutineId == routine['id']) {
+                                      _editingRoutineId = null;
+                                      _isDeletingTags = false;
+                                    }
+                                  });
                                 }
                               },
                               child: Image.asset(

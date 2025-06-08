@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import '../models/user_data.dart';
 
 class TopNavBar extends StatelessWidget {
   final String assetPrefix;
+  final String redirectRoute;
+  final UserData? userData;
 
-  const TopNavBar({super.key, required this.assetPrefix});
+  const TopNavBar({
+    super.key,
+    required this.assetPrefix,
+    this.redirectRoute = '/home',
+    this.userData,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,13 +28,12 @@ class TopNavBar extends StatelessWidget {
           // 홈 로고
           GestureDetector(
             onTap: () {
-              final currentRoute = ModalRoute.of(context)?.settings.name;
-              print("현재 라우트: $currentRoute");
-              if (currentRoute != '/home') {
-                print("➡️ HomePage로 이동");
-                Navigator.of(context, rootNavigator: true)
-                    .pushReplacementNamed('/home');
-              }
+              print("홈 로고 클릭됨 - 무조건 HomePage로 이동");
+
+              Navigator.of(context, rootNavigator: true).pushReplacementNamed(
+                '/home',
+                arguments: userData,
+              );
             },
             child: Image.asset('$assetPrefix/logo.png', width: 64, height: 64),
           ),
@@ -38,13 +45,16 @@ class TopNavBar extends StatelessWidget {
               print("Chatbot 버튼 클릭됨");
               final currentRoute = ModalRoute.of(context)?.settings.name;
               if (currentRoute != '/chatbot') {
-                Navigator.of(context, rootNavigator: true)
-                    .pushReplacementNamed('/chatbot');
+                Navigator.of(context, rootNavigator: true).pushReplacementNamed(
+                  '/chatbot',
+                  arguments: userData,
+                );
               }
             },
             child:
                 Image.asset('$assetPrefix/chatbot.png', width: 28, height: 28),
           ),
+
           const SizedBox(width: 10),
 
           // 스케줄
@@ -66,13 +76,23 @@ class TopNavBar extends StatelessWidget {
           const SizedBox(width: 10),
 
           // 마이페이지
+          // 마이페이지
           GestureDetector(
             onTap: () {
               print("MyPage 버튼 클릭됨");
               final currentRoute = ModalRoute.of(context)?.settings.name;
-              if (currentRoute != '/mypage') {
-                Navigator.of(context, rootNavigator: true)
-                    .pushReplacementNamed('/mypage');
+              print(" currentRoute: $currentRoute");
+
+              if (currentRoute == '/schedule') {
+                Navigator.of(context, rootNavigator: true).pushReplacementNamed(
+                  '/mypage2',
+                  arguments: userData,
+                );
+              } else if (currentRoute != '/mypage') {
+                Navigator.of(context, rootNavigator: true).pushReplacementNamed(
+                  '/mypage',
+                  arguments: userData,
+                );
               }
             },
             child:

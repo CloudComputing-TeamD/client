@@ -1,57 +1,40 @@
-// lib/services/auth_service.dart
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+  final _firebaseAuth = FirebaseAuth.instance;
+  final _googleSignIn = GoogleSignIn();
 
-  Future<String?> signInWithGoogle() async {
+  Future<bool> signInWithGoogle() async {
     try {
-      final account = await _googleSignIn.signIn();
-      final auth = await account?.authentication;
-      return auth?.idToken;
-    } catch (e) {
-      print('Google sign-in error: $e');
-      return null;
-    }
-  }
+      // 1️⃣ 기존 로그인 세션 제거
+      await FirebaseAuth.instance.signOut(); // Firebase에서 로그아웃
+      await GoogleSignIn().signOut(); // Google 세션 로그아웃
 
-  Future<Map<String, dynamic>?> authenticateWithServer(String idToken) async {
-    try {
-      final response = await http.get(
-        Uri.parse('https://your-api-domain.com/oauth2/authorization/google'),
-        headers: {'Authorization': 'Bearer $idToken'},
+      // 2️⃣ 계정 선택 창 강제 표시
+      final googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) return false;
+
+      final googleAuth = await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
       );
 
-      if (response.statusCode == 302) {
-        return {
-          'location': response.headers['location'],
-          'user_id': response.headers['user_id'], // 서버가 user_id 헤더로 보내는 경우
-        };
-      }
-    } catch (e) {
-      print('Server error: $e');
-    }
-    return null;
-  }
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
 
-  Future<Map<String, dynamic>?> loginWithEmail(
-      String email, String password) async {
-    try {
-      final response = await http.post(
-        Uri.parse('https://your-api-domain.com/api/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
-      );
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_id', userCredential.user?.uid ?? '');
+      await prefs.setString('token', googleAuth.idToken ?? '');
+      await prefs.setBool('onboarded', false);
 
-      if (response.statusCode == 200) {
-        return jsonDecode(
-            response.body); // { "user_id": "...", "redirect": "/home" }
-      }
+      return true;
     } catch (e) {
-      print('Login error: $e');
+      print("❌ Google 로그인 실패: $e");
+      return false;
     }
-    return null;
   }
 }

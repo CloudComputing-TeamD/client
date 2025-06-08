@@ -2,10 +2,24 @@ import 'package:flutter/material.dart';
 import 'user_info_input_page4.dart';
 import '../models/user_data.dart';
 
-class UserInfoInputPage3 extends StatelessWidget {
+class UserInfoInputPage3 extends StatefulWidget {
   final UserData userData;
 
   const UserInfoInputPage3({super.key, required this.userData});
+
+  @override
+  State<UserInfoInputPage3> createState() => _UserInfoInputPage3State();
+}
+
+class _UserInfoInputPage3State extends State<UserInfoInputPage3> {
+  String _selectedGoal = '';
+
+  void _onSelect(String goal) {
+    setState(() {
+      _selectedGoal = goal;
+      widget.userData.goal = goal;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +27,6 @@ class UserInfoInputPage3 extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 상단 시간 여백
           const Positioned(
             left: 40,
             top: 20,
@@ -64,7 +77,7 @@ class UserInfoInputPage3 extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 180,
+                    width: 240,
                     decoration: const BoxDecoration(
                       border: Border(
                         bottom: BorderSide(width: 3, color: Color(0xFF1A237E)),
@@ -111,7 +124,7 @@ class UserInfoInputPage3 extends StatelessWidget {
               title: '체력 회복/건강 증진',
               desc: '쉽게 피로해지거나 움직이기 힘든 몸을 회복하고 싶어요.'),
 
-          // 다음 버튼 (중앙 정렬)
+          // 다음 버튼
           Positioned(
             bottom: 40,
             left: 0,
@@ -122,7 +135,8 @@ class UserInfoInputPage3 extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const UserInfoInputPage4(),
+                      builder: (context) =>
+                          UserInfoInputPage4(userData: widget.userData),
                     ),
                   );
                 },
@@ -151,52 +165,59 @@ class UserInfoInputPage3 extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildOption(
-      {required double top, required String title, required String desc}) {
+  List<Widget> _buildOption({
+    required double top,
+    required String title,
+    required String desc,
+  }) {
+    final isSelected = _selectedGoal == title;
     return [
       Positioned(
         left: 11,
         top: top,
-        child: Container(
-          width: 369,
-          height: 70,
-          decoration: BoxDecoration(
-            color: const Color(0x191A237E),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _onSelect(title),
             borderRadius: BorderRadius.circular(40),
-          ),
-        ),
-      ),
-      Positioned(
-        left: 39,
-        top: top + 17,
-        child: SizedBox(
-          width: 325,
-          child: Text(
-            title,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-              fontFamily: 'Inter',
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ),
-      ),
-      Positioned(
-        left: 41,
-        top: top + 44,
-        child: SizedBox(
-          width: 296,
-          child: Text(
-            desc,
-            maxLines: 1,
-            softWrap: true,
-            overflow: TextOverflow.visible,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 13,
-              fontFamily: 'Inter',
-              fontWeight: FontWeight.w400,
+            splashColor: Colors.blue.withOpacity(0.2),
+            highlightColor: Colors.blue.withOpacity(0.1),
+            child: Container(
+              width: 369,
+              height: 70,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? const Color(0xFF1A237E)
+                    : const Color(0x191A237E),
+                borderRadius: BorderRadius.circular(40),
+              ),
+              padding: const EdgeInsets.only(left: 24, right: 24, top: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black,
+                      fontSize: 20,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    desc,
+                    maxLines: 1,
+                    softWrap: true,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black,
+                      fontSize: 13,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

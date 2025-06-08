@@ -9,6 +9,8 @@ environment:
   sdk: ^3.5.4
 
 dependencies:
+  firebase_auth: ^4.17.4
+  firebase_core: ^2.30.0
   flutter:
     sdk: flutter
   intl: ^0.18.1
@@ -17,6 +19,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.1.0
   shared_preferences: ^2.5.3
+  url_launcher: ^6.3.1
+  app_links: ^3.0.0
+
 
 
 dev_dependencies:
@@ -31,7 +36,9 @@ flutter:
     - assets/info/
     - assets/home/
     - assets/mypage/
+    - assets/mypage2/
     - assets/schedule/
     - assets/chatbot/
     - assets/routine/
+    - assets/timer/
   uses-material-design: true

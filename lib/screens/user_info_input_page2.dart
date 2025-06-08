@@ -14,10 +14,27 @@ class UserInfoInputPage2 extends StatefulWidget {
 class _UserInfoInputPage2State extends State<UserInfoInputPage2> {
   String _selectedLevel = '';
 
-  void _onSelect(String level) {
+  void _onSelect(String rawLevel) {
+    // 실제 저장할 값 매핑
+    String levelToSave;
+    switch (rawLevel) {
+      case 'BEGINNER':
+        levelToSave = 'BEGINNER';
+        break;
+      case 'LIGHT':
+      case 'MODERATE':
+        levelToSave = 'INTERMEDIATE';
+        break;
+      case 'ADVANCED':
+        levelToSave = 'ADVANCED';
+        break;
+      default:
+        levelToSave = '';
+    }
+
     setState(() {
-      _selectedLevel = level;
-      widget.userData.workoutLevel = level;
+      _selectedLevel = rawLevel;
+      widget.userData.workoutLevel = levelToSave;
     });
   }
 
@@ -27,8 +44,6 @@ class _UserInfoInputPage2State extends State<UserInfoInputPage2> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 상단 시간 공간만 유지
-          // 상단 시간 여백
           const Positioned(
             left: 40,
             top: 20,
@@ -49,7 +64,6 @@ class _UserInfoInputPage2State extends State<UserInfoInputPage2> {
               ),
               child: Row(
                 children: [
-                  // 뒤로가기 버튼 (page2에만 존재)
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: const Icon(Icons.arrow_back_ios_new,
@@ -69,9 +83,9 @@ class _UserInfoInputPage2State extends State<UserInfoInputPage2> {
             ),
           ),
 
-          // 상단 하이라이트 진행 바
+          // 상단 진행 바
           Positioned(
-            top: 124, // 네비게이션 바와 딱 붙도록 설정
+            top: 124,
             left: 0,
             right: 0,
             child: Container(
@@ -79,7 +93,7 @@ class _UserInfoInputPage2State extends State<UserInfoInputPage2> {
               child: Row(
                 children: [
                   Container(
-                    width: 120,
+                    width: 180,
                     decoration: const BoxDecoration(
                       border: Border(
                         bottom: BorderSide(width: 3, color: Color(0xFF1A237E)),
@@ -135,6 +149,7 @@ class _UserInfoInputPage2State extends State<UserInfoInputPage2> {
             subtitle: '주 4회 이상 체계적인 운동을 실천하고 있습니다.',
             level: 'ADVANCED',
           ),
+
           // 다음 버튼
           Positioned(
             bottom: 40,
@@ -203,38 +218,31 @@ class _UserInfoInputPage2State extends State<UserInfoInputPage2> {
                     : const Color(0x191A237E),
                 borderRadius: BorderRadius.circular(40),
               ),
-            ),
-          ),
-        ),
-      ),
-      Positioned(
-        left: 36,
-        top: top + 22,
-        child: SizedBox(
-          width: 325,
-          child: Text(
-            title,
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.black,
-              fontSize: 20,
-              fontFamily: 'Inter',
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ),
-      ),
-      Positioned(
-        left: 38,
-        top: top + 56,
-        child: SizedBox(
-          width: 296,
-          child: Text(
-            subtitle,
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.black,
-              fontSize: 13,
-              fontFamily: 'Inter',
-              fontWeight: FontWeight.w400,
+              padding: const EdgeInsets.only(left: 24, right: 24, top: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black,
+                      fontSize: 20,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black,
+                      fontSize: 13,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
